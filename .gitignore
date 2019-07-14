@@ -1,0 +1,6 @@
+data/*
+
+*.pyc
+*DS_Store
+.vscode/*
+.pylintrc
