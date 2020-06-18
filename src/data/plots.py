@@ -21,13 +21,12 @@ def plot_roc(y_true, y_score, num_classes, output_dir, fig_dir, name):
     roc_auc = dict()
 
     # Onehot encode labels
-    onehot_encoder = OneHotEncoder(sparse=False, categories='auto')
-    onehot_encoded = []
-    for i in range(len(y_true)):
-        onehot_encoded.append(onehot_encoder.fit_transform(
-            y_true[i].reshape(len(y_true[i]), 1)))
+    y_true = np.concatenate(y_true) # 64
+    onehot = np.zeros((y_true.shape[0], num_classes))
+    onehot[np.arange(len(onehot)), y_true] = 1
+    true = onehot
+    
     score = np.concatenate(y_score)
-    true = np.concatenate(onehot_encoded)
 
     # Get false positive and tru positive for each class
     for i in range(num_classes):
