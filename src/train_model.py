@@ -67,7 +67,7 @@ for folder in [args.fig_dir, args.output_dir, args.model_dir]:
 
 # Load data
 TRAIN_LOADER, TEST_LOADER = load_split_train_test(
-    args.data_dir, args.batch_size, args.valid_size, CROP_SIZE, args.sample_method)
+    args.data_dir, int(args.batch_size), float(args.valid_size), CROP_SIZE, args.sample_method)
 NUM_CLASSES = len(TRAIN_LOADER.dataset.classes)
 
 # Plot class counts
@@ -75,11 +75,11 @@ class_bar_plot(TRAIN_LOADER, args.fig_dir, RUN_NAME)
 
 # Load the required model
 MODEL, DEVICE, OPTIMIZER, CRITERION = get_model(
-    model_name=args.model, num_classes=NUM_CLASSES, lr=args.learning_rate)
+    model_name=args.model, num_classes=NUM_CLASSES, lr=float(args.learning_rate))
 
 # Train, test and save the model
 MODEL, TRAIN_LOSSES, TEST_LOSSES, TEST_ACCURACY = train_model(
-    MODEL, DEVICE, OPTIMIZER, CRITERION, TRAIN_LOADER, TEST_LOADER, EPOCHS,
+    MODEL, DEVICE, OPTIMIZER, CRITERION, TRAIN_LOADER, TEST_LOADER, int(EPOCHS),
     inception=INCEPTION, model_name=args.model)
 CONF_MATRIX, TEST_ACC, Y_TRUE, Y_SCORE = test_model(MODEL, DEVICE, TEST_LOADER, args.model)
 torch.save(MODEL, f'{args.model_dir}{os.sep}{RUN_NAME}.model')
