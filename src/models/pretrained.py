@@ -115,23 +115,23 @@ def train_model(model, device, optimizer, criterion, trainloader, testloader, ep
             loss.backward()
             optimizer.step()
             running_loss += loss.item()
-            test_loss = 0
-            accuracy = 0
-            model.eval()
-            with torch.no_grad():
-                for valid_inputs, valid_labels in testloader:
-                    valid_inputs, valid_labels = valid_inputs.to(device), valid_labels.to(device)
-                    bs, ncrops, c, h, w = valid_inputs.size()
-                    logps = model.forward(valid_inputs.view(-1, c, h, w))
-                    logps = logps.view(bs, ncrops, -1).mean(1)
-                    batch_loss = criterion(logps, valid_labels)
-                    test_loss += batch_loss.item()
-                    ps = torch.exp(logps)
-                    top_p, top_class = ps.topk(1, dim=1)
-                    equals = top_class == valid_labels.view(*top_class.shape)
-                    accuracy += torch.mean(equals.type(torch.FloatTensor)).item()
+        test_loss = 0
+        accuracy = 0
+        model.eval()
+        with torch.no_grad():
+            for valid_inputs, valid_labels in testloader:
+                valid_inputs, valid_labels = valid_inputs.to(device), valid_labels.to(device)
+                bs, ncrops, c, h, w = valid_inputs.size()
+                logps = model.forward(valid_inputs.view(-1, c, h, w))
+                logps = logps.view(bs, ncrops, -1).mean(1)
+                batch_loss = criterion(logps, valid_labels)
+                test_loss += batch_loss.item()
+                ps = torch.exp(logps)
+                top_p, top_class = ps.topk(1, dim=1)
+                equals = top_class == valid_labels.view(*top_class.shape)
+                accuracy += torch.mean(equals.type(torch.FloatTensor)).item()
 
-            model.train()
+        model.train()
         test_accuracy.append(accuracy/len(testloader))
         train_losses.append(running_loss/len(trainloader))
         test_losses.append(test_loss/len(testloader))
@@ -164,7 +164,7 @@ def test_model(model, device, testloader, model_name='test'):
             y_true.append(labels.cpu().numpy())
             y_score.append(output.cpu().numpy())
             correct += (pred == labels).sum().item()
-            conf_matrix = np.add(conf_matrix, confusion_matrix(labels.cpu(), pred.cpu()))
+            conf_matrix = np.add(conf_matrix, confusion_matrix(labels.cpu(), pred.cpu(), labels=np.arange(0,num_classes,1)))
         try:
             test_acc = 100. * correct / total
         except ZeroDivisionError:
